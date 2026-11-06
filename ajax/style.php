@@ -9,8 +9,6 @@
  * GET forms_id
  */
 
-include('../../../inc/includes.php');
-
 Session::checkLoginUser();
 
 header('Content-Type: text/css; charset=UTF-8');

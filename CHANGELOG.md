@@ -1,8 +1,8 @@
 # Journal des changements
 
-## 1.0.0 — 2026-11-06
+## 1.1.0 — 2026-11-06
 
-Première version (GLPI 11.0.x). Version bêta. Nom affiché : « Options du champ Demandeur (Catalogue de services) » (clé `formrequester`).
+Première version pour GLPI 12 (12.0.x). La série 1.0.x reste celle de GLPI 11 (branche `GLPI_11`). Version bêta. Nom affiché : « Options du champ Demandeur (Catalogue de services) » (clé `formrequester`).
 
 
 - Deux options par question Demandeur, décochées par défaut : « Liste par entité, comme dans un ticket » (partie Format)

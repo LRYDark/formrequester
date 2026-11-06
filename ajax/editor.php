@@ -11,8 +11,6 @@
  * POST forms_id, uuid, action=entity_on / entity_off : option « liste par entité, comme dans un ticket »
  */
 
-include('../../../inc/includes.php');
-
 Session::checkLoginUser();
 
 PluginFormrequesterRequester::respond('editor', static function (): array {

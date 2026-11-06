@@ -8,8 +8,6 @@
  * POST level, message, context, page
  */
 
-include('../../../inc/includes.php');
-
 Session::checkLoginUser();
 
 PluginFormrequesterRequester::respond('log', static function (): array {

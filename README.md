@@ -1,4 +1,4 @@
-# Options du champ Demandeur (Catalogue de services) — GLPI 11
+# Options du champ Demandeur (Catalogue de services) — GLPI 12
 
 Dans le **Catalogue de services**, la question « Demandeur » d'un formulaire se comporte comme le champ Demandeur
 du formulaire de ticket :
@@ -85,4 +85,4 @@ Copier le dossier dans `plugins/formrequester`, puis *Configuration → Plugins*
 
 ## Compatibilité
 
-GLPI 11.0.x (branche `GLPI_11`). La série 1.1.x, branche `GLPI_12`, est celle de GLPI 12.
+GLPI 12.0.x (branche `GLPI_12`). La série 1.0.x, branche `GLPI_11`, est celle de GLPI 11.

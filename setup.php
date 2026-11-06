@@ -13,9 +13,9 @@
 
 use Glpi\Plugin\Hooks;
 
-define('PLUGIN_FORMREQUESTER_VERSION', '1.0.0');
-define('PLUGIN_FORMREQUESTER_MIN_GLPI', '11.0.0');
-define('PLUGIN_FORMREQUESTER_MAX_GLPI', '11.0.99');
+define('PLUGIN_FORMREQUESTER_VERSION', '1.1.0');
+define('PLUGIN_FORMREQUESTER_MIN_GLPI', '12.0.0');
+define('PLUGIN_FORMREQUESTER_MAX_GLPI', '12.0.99');
 
 /**
  * Init hooks of the plugin.
@@ -25,8 +25,6 @@ define('PLUGIN_FORMREQUESTER_MAX_GLPI', '11.0.99');
 function plugin_init_formrequester()
 {
     global $PLUGIN_HOOKS;
-
-    $PLUGIN_HOOKS['csrf_compliant']['formrequester'] = true;
 
     // Script chargé sur toutes les pages ; il ne fait quelque chose que sur la page d'un formulaire et dans son
     // éditeur (public/js/formrequester.js, servi en /plugins/formrequester/js/formrequester.js).

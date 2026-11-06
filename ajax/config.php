@@ -8,8 +8,6 @@
  * GET forms_id, url_parameters[]
  */
 
-include('../../../inc/includes.php');
-
 Session::checkLoginUser();
 
 PluginFormrequesterRequester::respond('config', static function (): array {

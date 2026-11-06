@@ -8,8 +8,6 @@
  * GET forms_id, question, entity (-1 : aucune), searchText, page, url_parameters[]
  */
 
-include('../../../inc/includes.php');
-
 Session::checkLoginUser();
 
 PluginFormrequesterRequester::respond('search', static function (): array {
