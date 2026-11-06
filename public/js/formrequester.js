@@ -664,11 +664,12 @@
             renderEntityMode(card, forms_id, uuid, entry, installed, state);
 
             // Avec les adresses, la case « Obligatoire » affiche le choix mémorisé par le plugin (la case native reste
-            // décochée dans GLPI). Appliqué une fois par lecture de l'état, pour ne pas défaire un clic pas encore
-            // enregistré.
-            if (mandatory_input && entry !== null && card.dataset.formrequesterVersion !== String(state.version)) {
-                card.dataset.formrequesterVersion = String(state.version);
-                if (enabled) {
+            // décochée dans GLPI) et un clic dessus est enregistré aussitôt par le plugin. Appliqué une fois par lecture
+            // de l'état et par case (GLPI peut redessiner la case).
+            if (mandatory_input && entry !== null) {
+                bindMandatory(mandatory_input, forms_id, uuid, state);
+                if (enabled && mandatory_input.dataset.formrequesterVersion !== String(state.version)) {
+                    mandatory_input.dataset.formrequesterVersion = String(state.version);
                     mandatory_input.checked = Boolean(entry.mandatory);
                 }
             }
@@ -686,6 +687,44 @@
                 : (enabled ? entry.problems ?? [] : []);
             renderProblems(card, problems);
         }
+    }
+
+    /** Cases « Obligatoire » déjà écoutées (une case dupliquée par l'éditeur n'hérite pas de l'écoute). */
+    const bound_mandatory = new WeakSet();
+
+    /**
+     * Clic sur « Obligatoire » d'une question Demandeur dont la case « E-mails » est cochée : enregistré aussitôt par
+     * le plugin. Sans les e-mails, la case reste celle de GLPI (enregistrée avec le formulaire).
+     */
+    function bindMandatory(input, forms_id, uuid, state) {
+        if (bound_mandatory.has(input)) {
+            return;
+        }
+        bound_mandatory.add(input);
+
+        input.addEventListener('change', guarded('Obligatoire avec les e-mails', () => {
+            if (!state.status?.questions?.[uuid]?.email) {
+                return;
+            }
+            const wanted = input.checked;
+            $.ajax({
+                url: ajaxUrl('editor.php'),
+                type: 'POST',
+                dataType: 'json',
+                data: {forms_id: forms_id, uuid: uuid, action: wanted ? 'mandatory_on' : 'mandatory_off'},
+            })
+                .done(() => state.refresh?.())
+                .fail((xhr, status) => {
+                    input.checked = !wanted;
+                    if (xhr.status === 0 || xhr.status >= 500) {
+                        ajaxFailure('Obligatoire avec les e-mails')(xhr, status);
+                    }
+                    dialogAlert(
+                        'Réglage non appliqué',
+                        xhr.responseJSON?.error ?? 'Erreur inattendue, voir files/_log/formrequester.log.'
+                    );
+                });
+        }));
     }
 
     /**
@@ -829,9 +868,9 @@
 
             const title = wanted ? 'Autoriser les adresses mail' : 'Retirer les adresses mail';
             const message = wanted
-                ? 'Une question « E-mail du demandeur » va être créée (jamais affichée aux utilisateurs) et reliée aux '
-                    + 'demandeurs du ticket. Le réglage « Obligatoire » est conservé : il exigera un demandeur ou une '
-                    + 'adresse mail. La page va se recharger.'
+                ? 'Une question « E-mail du demandeur » va être créée (ou, s\'il y en a déjà une, la question Email reliée '
+                    + 'aux demandeurs du ticket sera réutilisée), jamais affichée aux utilisateurs. Le réglage '
+                    + '« Obligatoire » est conservé : il exigera un demandeur ou une adresse mail. La page va se recharger.'
                 : 'La question qui reçoit l\'adresse mail va être supprimée ; « Obligatoire » est conservé tel quel. '
                     + 'La page va se recharger.';
 

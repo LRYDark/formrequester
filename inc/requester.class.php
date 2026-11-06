@@ -403,6 +403,31 @@ class PluginFormrequesterRequester
     }
 
     /**
+     * Case « Obligatoire » d'une question Demandeur qui accepte les adresses mail : enregistrée aussitôt par le plugin
+     * (« un demandeur ou une adresse »). La case native de GLPI reste décochée.
+     */
+    public static function setMandatory(Form $form, string $requester_uuid, bool $mandatory): void
+    {
+        $requester = self::findRequesterByUuid($form, $requester_uuid);
+        $options   = self::getOptions((int) $requester->getID());
+        if ($options === null || !$options['use_email']) {
+            throw new RuntimeException('La case « E-mails » n\'est pas cochée sur cette question.', 409);
+        }
+
+        self::saveOptions((int) $requester->getID(), $options['use_entity'], true, $mandatory);
+        if ($requester->fields['is_mandatory']) {
+            self::updateQuestion($requester, ['is_mandatory' => 0]);
+        }
+
+        self::log('info', sprintf(
+            'formulaire %d : question Demandeur %d, « Obligatoire » (un demandeur ou une adresse) : %s',
+            $form->getID(),
+            $requester->getID(),
+            $mandatory ? 'oui' : 'non'
+        ));
+    }
+
+    /**
      * Option « Liste par entité, comme dans un ticket » : la liste Demandeur est limitée à l'entité choisie et choisir
      * un demandeur remplit la question Entité. Simple réglage du plugin : le formulaire n'est pas modifié.
      */
@@ -574,25 +599,14 @@ class PluginFormrequesterRequester
         }
 
         // Case « E-mails » pas cochée : formulaire ordinaire, le plugin ne touche à rien.
-        $question_id = (int) $question->getID();
-        if (self::getStoredMandatory($question_id) === null) {
+        if (self::getStoredMandatory((int) $question->getID()) === null) {
             return;
         }
 
-        $wanted   = (bool) $question->input['is_mandatory'];
-        $previous = self::getStoredMandatory($question_id);
-        self::storeMandatory($question_id, $wanted);
+        // Case « E-mails » cochée : la case native reste décochée (sinon GLPI refuserait une adresse seule). Le choix
+        // « Obligatoire » est enregistré par le plugin au clic dans l'éditeur (setMandatory) : l'enregistrement du
+        // formulaire ne le modifie jamais, même si la page n'a pas encore affiché ce choix.
         $question->input['is_mandatory'] = 0;
-
-        // Trace seulement quand quelque chose change (choix modifié, ou case native encore cochée et corrigée).
-        if ($previous !== $wanted || $question->fields['is_mandatory']) {
-            self::log('info', sprintf(
-                'formulaire %d : question Demandeur %d, « Obligatoire » mémorisé par le plugin : %s',
-                $question->fields['forms_sections_id'] ? $question->getForm()->getID() : 0,
-                $question_id,
-                $wanted ? 'oui' : 'non'
-            ));
-        }
     }
 
     /**
@@ -692,6 +706,14 @@ class PluginFormrequesterRequester
         }
 
         $emails = self::linkedEmails($analysis, $requester);
+        if ($emails === []) {
+            // Vérification sur une lecture neuve : GLPI garde en mémoire les questions d'un formulaire déjà chargé
+            // (une question tout juste créée n'y figure pas encore), alors que ses destinations sont relues.
+            $fresh = Form::getById((int) $requester->getForm()->getID());
+            if ($fresh instanceof Form) {
+                $emails = self::linkedEmails(self::analyse($fresh), $requester);
+            }
+        }
         if ($emails === []) {
             self::restoreMandatory($requester, $stored, 'question E-mail plus reliée aux demandeurs');
         }

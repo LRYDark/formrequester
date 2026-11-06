@@ -19,6 +19,9 @@ Première version pour GLPI 12 (12.0.x). La série 1.0.x reste celle de GLPI 11 
   masquée réaffichée sous « Demandeur ».
 - Sans effet hors des questions Demandeur ; adresses mail seulement avec la case « E-mails » ; en cas d'erreur, retour au champ
   natif de GLPI ; question E-mail masquée dès l'affichage (feuille de style dans l'en-tête).
+- Case « E-mails » : l'option n'est plus annulée à tort juste après son activation (formulaire relu à neuf après chaque
+  action). « Obligatoire » avec les e-mails : enregistré au clic par le plugin, jamais modifié par l'enregistrement du
+  formulaire.
 - Journal `files/_log/formrequester.log` (erreurs du serveur et du navigateur, actions de la case E-mails), traces
   détaillées dans la console à la demande.
 - Une table : `glpi_plugin_formrequester_requesters` (options cochées, choix « Obligatoire »).
